@@ -1,0 +1,201 @@
+[
+  {
+    "name": "workflow_orchestration",
+    "type": "automation",
+    "description": "Coordinates sequential and parallel task execution across multiple agents or systems, managing dependencies, branching logic, and state propagation throughout the workflow lifecycle.",
+    "input_schema": "{\"workflow_definition\": {\"tasks\": [{\"id\": \"string\", \"action\": \"string\", \"dependencies\": [\"string\"], \"config\": \"object\"}], \"execution_mode\": \"sequential|parallel|hybrid\"}, \"initial_context\": \"object\"}",
+    "output_schema": "{\"workflow_id\": \"string\", \"execution_status\": \"success|failed|suspended\", \"task_results\": [{\"task_id\": \"string\", \"output\": \"object\", \"timestamp\": \"ISO8601\"}], \"final_state\": \"object\", \"execution_trace\": [\"string\"]}",
+    "steps": [
+      "Parse and validate workflow definition against schema",
+      "Build directed acyclic graph (DAG) of task dependencies",
+      "Identify parallelizable task branches",
+      "Initialize execution state and context propagation mechanism",
+      "Execute tasks respecting dependency constraints",
+      "Handle failures with retry policies and rollback procedures",
+      "Aggregate results and propagate state to dependent tasks",
+      "Return execution trace and final state"
+    ],
+    "constraints": [
+      "Must detect circular dependencies before execution",
+      "Task timeout must be configurable (default 30min)",
+      "Failed tasks block dependent tasks unless retry policy is set",
+      "State propagation must be atomic per task completion",
+      "Maximum 1000 concurrent tasks per workflow instance"
+    ]
+  },
+  {
+    "name": "trigger_condition_monitoring",
+    "type": "automation",
+    "description": "Monitors external events, data state changes, and temporal triggers to determine when automated workflows should be initiated or adjusted, implementing event-driven architecture patterns.",
+    "input_schema": "{\"triggers\": [{\"type\": \"event|schedule|data_change|threshold\", \"condition\": \"string\", \"comparison_operator\": \"=|>|<|>=|<=|contains|regex\", \"target_value\": \"any\", \"cooldown_seconds\": \"integer\"}], \"target_workflow\": \"string\", \"context_variables\": \"object\"}",
+    "output_schema": "{\"trigger_id\": \"string\", \"triggered\": \"boolean\", \"matched_condition\": \"string\", \"trigger_payload\": \"object\", \"timestamp\": \"ISO8601\", \"next_check_time\": \"ISO8601\"}",
+    "steps": [
+      "Register trigger definitions and configure monitoring intervals",
+      "Poll or subscribe to event sources based on trigger type",
+      "Evaluate condition expressions against current state/events",
+      "Apply cooldown logic to prevent trigger spam",
+      "Construct context-enriched trigger payload",
+      "Execute target workflow with trigger data if condition matches",
+      "Log trigger evaluation and execution results",
+      "Schedule next monitoring cycle"
+    ],
+    "constraints": [
+      "Event evaluation must complete within 5 seconds",
+      "Minimum cooldown is 1 second, maximum is 24 hours",
+      "Complex condition expressions limited to 3 nested comparisons",
+      "Maximum 500 active triggers per monitoring session",
+      "Trigger payload must not exceed 10MB",
+      "Schedule-based triggers support cron syntax only"
+    ]
+  },
+  {
+    "name": "error_recovery_orchestration",
+    "type": "automation",
+    "description": "Implements intelligent error detection, classification, and automated remediation strategies including retries, fallback mechanisms, compensating transactions, and graceful degradation.",
+    "input_schema": "{\"error_context\": {\"error_type\": \"string\", \"error_message\": \"string\", \"stack_trace\": \"string\", \"affected_system\": \"string\", \"occurred_at_step\": \"integer\"}, \"recovery_policies\": [{\"condition\": \"string\", \"strategy\": \"retry|fallback|compensate|escalate\", \"max_attempts\": \"integer\", \"backoff_type\": \"linear|exponential|fixed\"}]}",
+    "output_schema": "{\"recovery_attempted\": \"boolean\", \"recovery_strategy_used\": \"string\", \"attempt_count\": \"integer\", \"recovery_successful\": \"boolean\", \"fallback_used\": \"boolean\", \"escalation_triggered\": \"boolean\", \"recovery_trace\": [\"string\"]}",
+    "steps": [
+      "Capture and normalize error information",
+      "Classify error into category (transient, permanent, resource, auth, logic)",
+      "Match error classification against recovery policies",
+      "Select optimal recovery strategy based on error type and context",
+      "Implement exponential backoff or linear retry based on policy",
+      "Execute fallback action if primary recovery fails",
+      "Log recovery attempts with timing and outcomes",
+      "Escalate to human operator if automated recovery exhausted"
+    ],
+    "constraints": [
+      "Retry maximum 5 attempts unless policy specifies otherwise",
+      "Exponential backoff multiplier must be between 1.5-2.0",
+      "Compensating transactions must be idempotent",
+      "Recovery execution timeout is 60 seconds",
+      "Escalation notifications must include full error context",
+      "Recovery policies cannot create infinite retry loops"
+    ]
+  },
+  {
+    "name": "data_pipeline_automation",
+    "type": "automation",
+    "description": "Orchestrates ETL/ELT processes including data extraction, transformation, validation, enrichment, and loading across heterogeneous sources with schema mapping and quality enforcement.",
+    "input_schema": "{\"pipeline_stages\": [{\"stage_id\": \"string\", \"type\": \"extract|transform|validate|enrich|load\", \"source\": \"string\", \"target\": \"string\", \"schema_mapping\": \"object\", \"transformation_rules\": [{\"field\": \"string\", \"operation\": \"string\"}]}], \"data_quality_checks\": [{\"metric\": \"string\", \"threshold\": \"number\"}]}",
+    "output_schema": "{\"pipeline_id\": \"string\", \"execution_status\": \"success|partial|failed\", \"records_processed\": \"integer\", \"records_failed\": \"integer\", \"data_quality_score\": \"number\", \"stage_results\": [{\"stage_id\": \"string\", \"duration_ms\": \"integer\", \"status\": \"string\"}], \"validation_report\": \"object\"}",
+    "steps": [
+      "Validate pipeline definition and data source connectivity",
+      "Extract data from source systems with incremental/full options",
+      "Apply schema mapping and type coercion rules",
+      "Execute transformation rules in dependency order",
+      "Run data quality and consistency checks",
+      "Enrich data with contextual information from reference tables",
+      "Load data into target systems with transaction handling",
+      "Generate validation report and quality metrics"
+    ],
+    "constraints": [
+      "Maximum batch size per stage is 1 million records",
+      "Schema mapping must be bidirectional and reversible",
+      "Data quality checks must not exceed 10% of processing time",
+      "Transformation operations must be deterministic",
+      "Failed records must be logged with root cause analysis",
+      "Pipeline must support automatic resume from last successful stage"
+    ]
+  },
+  {
+    "name": "resource_allocation_scheduler",
+    "type": "automation",
+    "description": "Manages dynamic allocation of computational resources, memory, and worker processes across competing tasks, optimizing for throughput, latency, and cost based on demand patterns.",
+    "input_schema": "{\"resource_pool\": {\"total_cpus\": \"integer\", \"total_memory_gb\": \"integer\", \"worker_instances\": \"integer\"}, \"pending_tasks\": [{\"task_id\": \"string\", \"cpu_required\": \"number\", \"memory_required_gb\": \"number\", \"priority\": \"critical|high|normal|low\", \"deadline_seconds\": \"integer\"}], \"allocation_strategy\": \"greedy|optimal|fair_share\"}",
+    "output_schema": "{\"allocation_plan\": [{\"task_id\": \"string\", \"assigned_cpus\": \"number\", \"assigned_memory_gb\": \"number\", \"worker_id\": \"string\", \"estimated_start_time\": \"ISO8601\"}], \"unscheduled_tasks\": [\"string\"], \"predicted_completion_time\": \"ISO8601\", \"resource_utilization\": \"object\"}",
+    "steps": [
+      "Collect current resource availability and utilization metrics",
+      "Prioritize pending tasks by priority level and deadline",
+      "Calculate resource requirements for each task",
+      "Apply scheduling algorithm to match tasks to available resources",
+      "Account for task dependencies and inter-process communication overhead",
+      "Reserve resources with preemption policies for critical tasks",
+      "Assign tasks to specific worker instances",
+      "Monitor and adjust allocations as tasks complete or new tasks arrive"
+    ],
+    "constraints": [
+      "Scheduling algorithm must complete within 2 seconds",
+      "No task can be starved longer than its deadline period",
+      "Resource fragmentation must not exceed 20%",
+      "Preemption allowed only for tasks marked as preemptible",
+      "Critical priority tasks guaranteed minimum 50% of free resources",
+      "Memory allocation must include 10% buffer for system overhead"
+    ]
+  },
+  {
+    "name": "state_synchronization",
+    "type": "automation",
+    "description": "Maintains consistency across distributed state replicas, handles conflicts, and ensures eventual consistency using conflict resolution strategies and reconciliation protocols.",
+    "input_schema": "{\"state_replicas\": [{\"replica_id\": \"string\", \"location\": \"string\", \"last_update_time\": \"ISO8601\", \"state_snapshot\": \"object\"}], \"conflict_resolution_strategy\": \"last_write_wins|vector_clock|custom_merge\", \"consistency_model\": \"strong|eventual\"}",
+    "output_schema": "{\"synchronization_id\": \"string\", \"status\": \"success|conflict|timeout\", \"replicas_synchronized\": \"integer\", \"conflicts_detected\": \"integer\", \"conflicts_resolved\": [{\"field\": \"string\", \"winning_value\": \"any\", \"resolution_strategy_applied\": \"string\"}], \"final_state\": \"object\"}",
+    "steps": [
+      "Collect state snapshots from all active replicas",
+      "Compare states to identify divergences",
+      "Detect conflicts where replicas have different values for same fields",
+      "Apply conflict resolution strategy based on configuration",
+      "Compute canonical state that represents all replicas",
+      "Distribute canonical state to all replicas",
+      "Verify replicas received and applied state updates",
+      "Log synchronization result with conflict resolution trace"
+    ],
+    "constraints": [
+      "Synchronization must complete within 30 seconds",
+      "Vector clock depth must not exceed 1000 nodes",
+      "Custom merge functions must be pure and deterministic",
+      "Conflict detection must identify all divergent fields",
+      "Eventual consistency timeout maximum 5 minutes",
+      "State snapshots must be cryptographically signed for integrity"
+    ]
+  },
+  {
+    "name": "task_dependency_resolver",
+    "type": "automation",
+    "description": "Analyzes task interdependencies, detects blocking conditions, computes optimal execution order, and manages transitive dependencies to enable maximum parallelization.",
+    "input_schema": "{\"tasks\": [{\"id\": \"string\", \"dependencies\": [\"string\"], \"estimated_duration_ms\": \"integer\", \"required_outputs\": [\"string\"], \"optional_dependencies\": [\"string\"]}], \"constraint_rules\": [{\"type\": \"exclusive|conditional|temporal\", \"affected_tasks\": [\"string\"], \"condition\": \"string\"}]}",
+    "output_schema": "{\"execution_graph\": {\"critical_path\": [\"string\"], \"critical_path_duration_ms\": \"integer\", \"parallelizable_groups\": [[\"string\"]], \"dependency_levels\": {\"level_number\": [\"string\"]}}, \"blocking_tasks\": [{\"blocker_task\": \"string\", \"blocked_tasks\": [\"string\"], \"dependency_reason\": \"string\"}]}",
+    "steps": [
+      "Parse task definitions and dependency declarations",
+      "Build directed acyclic graph representing dependencies",
+      "Detect circular dependencies and report as errors",
+      "Compute transitive closure to identify all indirect dependencies",
+      "Identify critical path using topological sort and duration analysis",
+      "Group tasks into parallelizable levels by dependency distance",
+      "Analyze optional dependencies and soft constraints",
+      "Generate optimized execution plan maximizing parallelism"
+    ],
+    "constraints": [
+      "Cycle detection must be O(V+E) complexity",
+      "Maximum 10,000 tasks per resolution",
+      "Optional dependencies cannot create new critical paths",
+      "Temporal constraints must be relative (not absolute times)",
+      "Execution plan must be deterministic given same inputs",
+      "Constraint validation must complete within 5 seconds"
+    ]
+  },
+  {
+    "name": "rate_limiting_enforcement",
+    "type": "automation",
+    "description": "Enforces rate limits, quota policies, and throttling rules across distributed systems using token bucket, sliding window, and adaptive algorithms to prevent resource exhaustion.",
+    "input_schema": "{\"rate_limit_policies\": [{\"resource_id\": \"string\", \"limit_type\": \"requests_per_second|requests_per_minute|concurrent_connections|bandwidth_mbps\", \"limit_value\": \"number\", \"window_size_seconds\": \"integer\", \"burst_allowance\": \"number\", \"enforcement_mode\": \"hard|soft\"}], \"current_usage\": {\"resource_id\": \"string\", \"current_rate\": \"number\", \"burst_used\": \"number\"}}",
+    "output_schema": "{\"rate_limit_id\": \"string\", \"request_allowed\": \"boolean\", \"tokens_available\": \"number\", \"retry_after_seconds\": \"number\", \"penalty_applied\": \"boolean\", \"adaptive_adjustment\": \"number\", \"current_utilization_percent\": \"number\"}",
+    "steps": [
+      "Load rate limit policy for requested resource",
+      "Determine applicable algorithm (token bucket, sliding window, or adaptive)",
+      "Calculate tokens/quota available based on time elapsed",
+      "Check if current request can be served within limits",
+      "Apply burst allowance if permitted and available",
+      "Record request in rate limit history",
+      "Calculate backoff time if rate limit exceeded",
+      "Adjust limits adaptively based on load patterns if enabled"
+    ],
+    "constraints": [
+      "Token bucket refill must be continuous, not batch",
+      "Window size minimum 1 second, maximum 1 hour",
+      "Burst allowance cannot exceed 200% of base limit",
+      "Adaptive adjustment factor must be between 0.5-2.0",
+      "Hard enforcement blocks excess requests; soft allows with penalty",
+      "Rate limit decisions must complete in under 10ms"
+    ]
+  }
+]
